@@ -1,6 +1,10 @@
 package me.miquiis.record;
 
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import me.miquiis.record.client.ClientKeybinds;
+import me.miquiis.record.common.managers.FileManager;
+import me.miquiis.record.common.managers.RecordManager;
+import me.miquiis.record.common.models.RecordScript;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
@@ -25,11 +29,23 @@ public class Record
 {
     public static final String MOD_ID = "record";
 
+    private static Record instance;
+
+    // SERVER SIDE
+
+    // CLIENT SIDE
+
+    // COMMON SIDE
+
+    private FileManager pathfindingFolder;
+    private RecordManager recordManager;
+
     public Record() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::enqueueIMC);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -56,6 +72,25 @@ public class Record
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         // do something when the server starts
+        instance = this;
+
+        pathfindingFolder = new FileManager("pathfinding",
+                RuntimeTypeAdapterFactory.of(RecordScript.RecordTick.RecordTickEvent.class, "type")
+                        .registerSubtype(RecordScript.RecordTick.ItemRecordTickEvent.class, "item")
+        );
+
+        recordManager = new RecordManager(this);
     }
 
+    public RecordManager getRecordManager() {
+        return recordManager;
+    }
+
+    public FileManager getPathfindingFolder() {
+        return pathfindingFolder;
+    }
+
+    public static Record getInstance() {
+        return instance;
+    }
 }

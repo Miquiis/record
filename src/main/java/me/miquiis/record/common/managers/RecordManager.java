@@ -3,12 +3,17 @@ package me.miquiis.record.common.managers;
 import me.miquiis.record.Record;
 import me.miquiis.record.common.models.PlayScript;
 import me.miquiis.record.common.models.RecordScript;
+import net.minecraft.command.arguments.NBTTagArgument;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.*;
 
@@ -41,7 +46,7 @@ public class RecordManager {
         RecordScript recordScript = getRecordScript(recorder);
         recording.remove(recorder);
         cachedScripts.remove(recordScript);
-        mod.getPathfindingFile().saveObject(recordScript.name, recordScript);
+        mod.getPathfindingFolder().saveObject(recordScript.name, recordScript);
     }
 
     public void stopPlaying(UUID uuid)
@@ -50,9 +55,9 @@ public class RecordManager {
         currentPlaying.remove(uuid);
     }
 
-    public int startPlaying(ServerPlayerEntity player, String name, EntityType<?> entityType)
+    public int startPlaying(ServerPlayerEntity player, String name, EntityType<?> entityType, CompoundNBT nbt)
     {
-        final RecordManager recordManager = MinecraftSchool.getInstance().getRecordManager();
+        final RecordManager recordManager = Record.getInstance().getRecordManager();
         final RecordScript recordScript = recordManager.getRecordScript(name);
 
         if (recordScript == null)
@@ -69,10 +74,12 @@ public class RecordManager {
 
         if (entityType == null)
         {
-            entityType = ModEntityTypes.FAKE_PLAYER.get();
+            entityType = EntityType.PLAYER;
         }
 
         Entity spawnedEntity = entityType.spawn(player.getServerWorld(), null, null, new BlockPos(recordScript.getFirstTick().posx, recordScript.getFirstTick().posy, recordScript.getFirstTick().posz), SpawnReason.COMMAND, false,  false);
+
+        spawnedEntity.read(spawnedEntity.serializeNBT().merge(nbt));
 
         currentPlaying.put(spawnedEntity.getUniqueID(), new PlayScript(recordScript));
 
@@ -99,7 +106,7 @@ public class RecordManager {
 
         if (recordScript == null)
         {
-            recordScript = mod.getPathfindingFile().loadObject(name, RecordScript.class, false);
+            recordScript = mod.getPathfindingFolder().loadObject(name, RecordScript.class, false);
             if (recordScript != null)
             {
                 cachedScripts.add(recordScript);
