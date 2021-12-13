@@ -1,19 +1,14 @@
 package me.miquiis.record.common.managers;
 
 import me.miquiis.record.Record;
-import me.miquiis.record.common.models.PlayScript;
-import me.miquiis.record.common.models.RecordScript;
-import net.minecraft.command.arguments.NBTTagArgument;
+import me.miquiis.record.common.models.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.*;
 
@@ -21,31 +16,35 @@ public class RecordManager {
 
     private Record mod;
 
-    private Map<UUID, PlayScript> currentPlaying;
-    private Map<UUID, String> recording;
-    private Set<RecordScript> cachedScripts;
+    private Map<UUID, List<RecordTake>> currentPlaying;
+    private Map<UUID, RecordingTake> recording;
+    private Set<RecordTape> cachedTapes;
 
     public RecordManager(Record mod) {
         this.mod = mod;
         this.currentPlaying = new HashMap<>();
         this.recording = new HashMap<>();
-        this.cachedScripts = new HashSet<>();
+        this.cachedTapes = new HashSet<>();
     }
 
-    public void startRecording(UUID recorder, String name)
+    public void startRecording(UUID recorder, String tape, String take)
     {
         if (isRecording(recorder)) return;
-        RecordScript recordScript = new RecordScript(name);
-        cachedScripts.add(recordScript);
-        recording.put(recorder, name);
+        recording.put(recorder, new RecordingTake(tape, take));
     }
 
     public void stopRecording(UUID recorder)
     {
         if (!isRecording(recorder)) return;
-        RecordScript recordScript = getRecordScript(recorder);
+
+        RecordingTake recordingTake = getRecordingTake(recorder);
         recording.remove(recorder);
-        cachedScripts.remove(recordScript);
+
+        RecordTape recordTape = getRecordTape(recordingTake.recordingTape);
+        recordTape.addTake(new RecordTake(recordingTake.recordingTake, ));
+
+        cachedTapes.add(recordTape);
+
         mod.getPathfindingFolder().saveObject(recordScript.name, recordScript);
     }
 
@@ -88,32 +87,30 @@ public class RecordManager {
         return 1;
     }
 
-    public PlayScript getPlayScript(UUID uuid)
-    {
-        if (!isPlaying(uuid)) return null;
-        return currentPlaying.get(uuid);
-    }
-
-    public RecordScript getRecordScript(UUID uuid)
+    public RecordingTake getRecordingTake(UUID uuid)
     {
         if (!isRecording(uuid)) return null;
-        return getRecordScript(recording.get(uuid));
+        return recording.get(uuid);
     }
 
-    public RecordScript getRecordScript(String name)
-    {
-        RecordScript recordScript = cachedScripts.stream().filter(cachedScripts -> cachedScripts.name.equals(name)).findFirst().orElse(null);
 
-        if (recordScript == null)
+    public RecordTape getRecordTape(String name)
+    {
+        RecordTape recordTape = cachedTapes.stream().filter(cachedScripts -> cachedScripts.tapeName.equals(name)).findFirst().orElse(null);
+
+        if (recordTape == null)
         {
-            recordScript = mod.getPathfindingFolder().loadObject(name, RecordScript.class, false);
-            if (recordScript != null)
+            recordTape = mod.getPathfindingFolder().loadObject(name, RecordTape.class, false);
+            if (recordTape != null)
             {
-                cachedScripts.add(recordScript);
+                cachedTapes.add(recordTape);
+            } else
+            {
+                recordTape = new RecordTape(name);
             }
         }
 
-        return recordScript;
+        return recordTape;
     }
 
     public boolean isRecording(UUID uuid)
