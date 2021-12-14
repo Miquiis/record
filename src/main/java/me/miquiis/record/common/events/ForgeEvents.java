@@ -2,11 +2,10 @@ package me.miquiis.record.common.events;
 
 import me.miquiis.record.Record;
 import me.miquiis.record.common.managers.RecordManager;
-import me.miquiis.record.common.models.PlayScript;
+import me.miquiis.record.common.models.PlayTake;
 import me.miquiis.record.common.models.RecordScript;
 import me.miquiis.record.server.commands.HelloWorldCommand;
 import me.miquiis.record.server.commands.RecordCommand;
-import net.minecraft.command.Commands;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -39,7 +38,7 @@ public class ForgeEvents {
 
             if (!recordManager.isRecording((event.player.getUniqueID()))) return;
 
-            recordManager.getRecordScript(event.player.getUniqueID()).addTick(new RecordScript.RecordTick(event.player));
+            recordManager.getRecordingTake(event.player.getUniqueID()).recordScript.addTick(new RecordScript.RecordTick(event.player));
         }
     }
 
@@ -51,14 +50,20 @@ public class ForgeEvents {
         final RecordManager recordManager = instance.getRecordManager();
         final LivingEntity livingEntity = event.getEntityLiving();
 
-        if (!recordManager.isPlaying(event.getEntity().getUniqueID())) return;
+        final PlayTake playTake = recordManager.getEntityTake(event.getEntity().getUniqueID());
+        if (playTake == null) return;
 
-        final PlayScript playScript = recordManager.getPlayScript(event.getEntity().getUniqueID());
-        final RecordScript.RecordTick tick = playScript.playTick();
+        final RecordScript.RecordTick tick = playTake.takeScript.playTick();
 
         if (tick == null)
         {
-            recordManager.stopPlaying(event.getEntity().getUniqueID());
+            if (playTake.shouldKill)
+            {
+                livingEntity.remove();
+            }
+            if (recordManager.stopPlaying(playTake.tapeName, playTake.takeName)) {
+                System.out.println("Animation has ended");
+            }
             return;
         }
 

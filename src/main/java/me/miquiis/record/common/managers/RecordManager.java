@@ -2,6 +2,7 @@ package me.miquiis.record.common.managers;
 
 import me.miquiis.record.Record;
 import me.miquiis.record.common.models.*;
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -10,13 +11,15 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 
+import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RecordManager {
 
     private Record mod;
 
-    private Map<UUID, List<RecordTake>> currentPlaying;
+    private Map<String, List<PlayTake>> currentPlaying;
     private Map<UUID, RecordingTake> recording;
     private Set<RecordTape> cachedTapes;
 
@@ -27,10 +30,10 @@ public class RecordManager {
         this.cachedTapes = new HashSet<>();
     }
 
-    public void startRecording(UUID recorder, String tape, String take)
+    public void startRecording(UUID recorder, String tape, String take, String entity)
     {
         if (isRecording(recorder)) return;
-        recording.put(recorder, new RecordingTake(tape, take));
+        recording.put(recorder, new RecordingTake(tape, take, entity));
     }
 
     public void stopRecording(UUID recorder)
@@ -41,46 +44,71 @@ public class RecordManager {
         recording.remove(recorder);
 
         RecordTape recordTape = getRecordTape(recordingTake.recordingTape);
-        recordTape.addTake(new RecordTake(recordingTake.recordingTake, ));
+        recordTape.addTake(new RecordTake(recordingTake.recordingTape, recordingTake.recordingTake, recordingTake.recordingEntity, recordingTake.recordScript));
 
         cachedTapes.add(recordTape);
 
-        mod.getPathfindingFolder().saveObject(recordScript.name, recordScript);
+        mod.getPathfindingFolder().saveObject(recordTape.tapeName, recordTape);
     }
 
-    public void stopPlaying(UUID uuid)
+    public void stopPlaying(String tape)
     {
-        if (!isPlaying(uuid)) return;
-        currentPlaying.remove(uuid);
+        if (!isPlaying(tape)) return;
+        currentPlaying.remove(tape);
     }
 
-    public int startPlaying(ServerPlayerEntity player, String name, EntityType<?> entityType, CompoundNBT nbt)
+    public boolean stopPlaying(String tape, String take)
+    {
+        if (!isPlaying(tape)) return true;
+        List<PlayTake> playTakes = currentPlaying.get(tape);
+        if (playTakes == null) return true;
+        playTakes.removeIf(playTake -> playTake.takeName.equalsIgnoreCase(take));
+
+        if (playTakes.isEmpty())
+        {
+            currentPlaying.remove(tape);
+            return true;
+        }
+
+        currentPlaying.put(tape, playTakes);
+        return false;
+    }
+
+    public int startPlaying(ServerPlayerEntity player, String tapeName, boolean shouldKill, @Nonnull List<String> whitelist)
     {
         final RecordManager recordManager = Record.getInstance().getRecordManager();
-        final RecordScript recordScript = recordManager.getRecordScript(name);
+        final RecordTape recordTape = recordManager.getRecordTape(tapeName);
 
-        if (recordScript == null)
+        if (recordTape == null)
         {
-            player.sendMessage(new StringTextComponent("The recording named " + name + " was not found."), null);
+            player.sendMessage(new StringTextComponent("The recording named " + tapeName + " was not found."), null);
             return -1;
         }
 
-        if (recordScript.getFirstTick() == null)
+        List<RecordTake> recordTakes = recordTape.takes.stream().filter(recordTake -> whitelist.isEmpty() || whitelist.contains(recordTake.takeName)).collect(Collectors.toList());
+
+        if (recordTakes.isEmpty())
         {
-            player.sendMessage(new StringTextComponent("The recording named " + name + " has no animation."), null);
+            player.sendMessage(new StringTextComponent("The recording tape named " + tapeName + " has no animations."), null);
             return -1;
         }
 
-        if (entityType == null)
-        {
-            entityType = EntityType.PLAYER;
-        }
+        List<PlayTake> playTakes = new ArrayList<>();
 
-        Entity spawnedEntity = entityType.spawn(player.getServerWorld(), null, null, new BlockPos(recordScript.getFirstTick().posx, recordScript.getFirstTick().posy, recordScript.getFirstTick().posz), SpawnReason.COMMAND, false,  false);
+        recordTakes.forEach(recordTake -> {
+            final Optional<EntityType<?>> optionalEntityType = EntityType.byKey(recordTake.takeEntity);
+            final RecordScript recordScript = recordTake.takeScript;
+            optionalEntityType.ifPresent(entityType -> {
+                Entity spawnedEntity = entityType.spawn(player.getServerWorld(), null, null, new BlockPos(recordScript.getFirstTick().posx, recordScript.getFirstTick().posy, recordScript.getFirstTick().posz), SpawnReason.COMMAND, false,  false);
+                CompoundNBT nbt = spawnedEntity.serializeNBT();
+                nbt.putBoolean("NoAI", true);
 
-        spawnedEntity.read(spawnedEntity.serializeNBT().merge(nbt));
+                spawnedEntity.deserializeNBT(nbt);
+                playTakes.add(new PlayTake(recordTake, shouldKill, spawnedEntity.getUniqueID()));
+            });
+        });
 
-        currentPlaying.put(spawnedEntity.getUniqueID(), new PlayScript(recordScript));
+        currentPlaying.put(recordTape.tapeName, playTakes);
 
         player.sendMessage(new StringTextComponent("Animation is starting now."), null);
 
@@ -118,7 +146,22 @@ public class RecordManager {
         return recording.containsKey(uuid);
     }
 
-    public boolean isPlaying(UUID uuid)
+    public PlayTake getEntityTake(UUID uuid)
+    {
+        for (List<PlayTake> playTakes : currentPlaying.values())
+        {
+            for (PlayTake playTake : playTakes)
+            {
+                if (playTake.entityId.equals(uuid))
+                {
+                    return playTake;
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean isPlaying(String uuid)
     {
         return currentPlaying.containsKey(uuid);
     }

@@ -112,7 +112,6 @@ public class RecordScript {
             this.falldistance = livingEntity.fallDistance;
             this.pitch = livingEntity.rotationPitch;
             this.yaw = livingEntity.rotationYawHead;
-
             this.isSwingInProgress = livingEntity.isSwingInProgress;
             this.swingProgress = livingEntity.swingProgress;
 
