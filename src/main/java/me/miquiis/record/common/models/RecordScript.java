@@ -1,5 +1,6 @@
 package me.miquiis.record.common.models;
 
+import com.google.gson.annotations.SerializedName;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -89,6 +90,9 @@ public class RecordScript {
             }
         }
 
+        @SerializedName("type")
+        private String typeName;
+
         // Player Position
         public double posx;
         public double posy;
@@ -106,6 +110,7 @@ public class RecordScript {
 
         public RecordTick(LivingEntity livingEntity)
         {
+            typeName = getClass().getName();
             this.posx = livingEntity.getPosX();
             this.posy = livingEntity.getPosY();
             this.posz = livingEntity.getPosZ();

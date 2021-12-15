@@ -2,7 +2,6 @@ package me.miquiis.record.common.managers;
 
 import me.miquiis.record.Record;
 import me.miquiis.record.common.models.*;
-import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;

@@ -3,8 +3,9 @@ package me.miquiis.record.common.managers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
+import me.miquiis.record.common.utils.JsonDeserializerWithInheritance;
 import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
 
 import java.io.File;
 import java.io.FileReader;
@@ -31,10 +32,18 @@ public class FileManager {
         this.isFirstTime = createFolder();
     }
 
-    public FileManager(String filePath, RuntimeTypeAdapterFactory<?> adapterFactory)
+    public<T> FileManager(String filePath, File directory, Class<T>... classes)
     {
-        this.minecraftFolder = Minecraft.getInstance().gameDir;
-        this.gson = new GsonBuilder().registerTypeAdapterFactory(adapterFactory).setPrettyPrinting().create();
+        this.minecraftFolder = directory;
+
+        GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+
+        for (Class<T> klass : classes)
+        {
+            gsonBuilder.registerTypeAdapter(klass, new JsonDeserializerWithInheritance<T>());
+        }
+
+        this.gson = gsonBuilder.create();
         this.mainFolder = new File(minecraftFolder, filePath);
         this.isFirstTime = createFolder();
     }

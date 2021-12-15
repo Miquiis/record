@@ -31,7 +31,7 @@ public class ForgeEvents {
     @SubscribeEvent
     public static void onClientTick(TickEvent.PlayerTickEvent event)
     {
-        if (event.side == LogicalSide.CLIENT && event.phase == TickEvent.Phase.END)
+        if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END)
         {
             final Record instance = Record.getInstance();
             final RecordManager recordManager = instance.getRecordManager();

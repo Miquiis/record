@@ -27,15 +27,13 @@ displayName="Record Mod" #mandatory
 # A URL for the "homepage" for this mod, displayed in the mod UI
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="" #optional
+#logoFile="" #optional
 # A text field displayed in the mod UI
-credits="" #optional
+#credits="" #optional
 # A text field displayed in the mod UI
 authors="Miquiis" #optional
 # The description text for the mod (multi line!) (#mandatory)
-description='''
-Record Mod made by Miquiis
-'''
+description='''Record Mod made by Miquiis'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.record]] #optional
     # the modid of the dependency
