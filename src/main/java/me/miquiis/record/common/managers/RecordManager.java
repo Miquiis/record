@@ -1,7 +1,9 @@
 package me.miquiis.record.common.managers;
 
+import com.mojang.brigadier.Message;
 import me.miquiis.record.Record;
 import me.miquiis.record.common.models.*;
+import me.miquiis.record.common.utils.MessageUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -22,11 +24,19 @@ public class RecordManager {
     private Map<UUID, RecordingTake> recording;
     private Set<RecordTape> cachedTapes;
 
+    private boolean sendFeedback;
+
     public RecordManager(Record mod) {
         this.mod = mod;
         this.currentPlaying = new HashMap<>();
         this.recording = new HashMap<>();
         this.cachedTapes = new HashSet<>();
+        this.sendFeedback = true;
+    }
+
+    public boolean toggleFeedback()
+    {
+        return sendFeedback = !sendFeedback;
     }
 
     public void startRecording(UUID recorder, String tape, String take, String entity)
@@ -78,17 +88,17 @@ public class RecordManager {
         final RecordManager recordManager = Record.getInstance().getRecordManager();
         final RecordTape recordTape = recordManager.getRecordTape(tapeName);
 
-        if (recordTape == null)
+        if (recordTape == null && isSendingFeedback())
         {
-            player.sendMessage(new StringTextComponent("The recording named " + tapeName + " was not found."), null);
+            MessageUtils.sendMessage(player, "&cThe recording named " + tapeName + " was not found.");
             return -1;
         }
 
         List<RecordTake> recordTakes = recordTape.takes.stream().filter(recordTake -> whitelist.isEmpty() || whitelist.contains(recordTake.takeName)).collect(Collectors.toList());
 
-        if (recordTakes.isEmpty())
+        if (recordTakes.isEmpty()&& isSendingFeedback())
         {
-            player.sendMessage(new StringTextComponent("The recording tape named " + tapeName + " has no animations."), null);
+            MessageUtils.sendMessage(player, "&cThe recording tape named " + tapeName + " has no animations.");
             return -1;
         }
 
@@ -109,7 +119,8 @@ public class RecordManager {
 
         currentPlaying.put(recordTape.tapeName, playTakes);
 
-        player.sendMessage(new StringTextComponent("Animation is starting now."), null);
+        if (isSendingFeedback())
+            MessageUtils.sendMessage(player, "&aAnimation is starting now.");
 
         return 1;
     }
@@ -158,6 +169,10 @@ public class RecordManager {
             }
         }
         return null;
+    }
+
+    public boolean isSendingFeedback() {
+        return sendFeedback;
     }
 
     public boolean isPlaying(String uuid)

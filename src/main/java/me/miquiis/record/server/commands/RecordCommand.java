@@ -6,6 +6,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.miquiis.record.Record;
+import me.miquiis.record.common.managers.RecordManager;
+import me.miquiis.record.common.utils.MessageUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.EntitySummonArgument;
@@ -25,22 +27,38 @@ public class RecordCommand {
             String take = StringArgumentType.getString(context, "take");
             ResourceLocation entity = EntitySummonArgument.getEntityId(context, "entity");
 
-            context.getSource().sendFeedback(new StringTextComponent("Started recording take " + take + " for tape " + tape), true);
-            Record.getInstance().getRecordManager().startRecording(context.getSource().asPlayer().getUniqueID(), tape, take, entity.toString());
+            final RecordManager recordManager = Record.getInstance().getRecordManager();
+
+            if (recordManager.isSendingFeedback())
+                MessageUtils.sendMessage(context.getSource().asPlayer(), "&eStarted recording take " + take + " for tape " + tape);
+
+            recordManager.startRecording(context.getSource().asPlayer().getUniqueID(), tape, take, entity.toString());
             return 1;
         }).then(Commands.argument("playback", StringArgumentType.string()).executes(context -> {
             String tape = StringArgumentType.getString(context, "tape");
             String take = StringArgumentType.getString(context, "take");
             ResourceLocation entity = EntitySummonArgument.getEntityId(context, "entity");
 
-            context.getSource().sendFeedback(new StringTextComponent("Started recording take " + take + " for tape " + tape), true);
-            Record.getInstance().getRecordManager().startRecording(context.getSource().asPlayer().getUniqueID(), tape, take, entity.toString());
+            final RecordManager recordManager = Record.getInstance().getRecordManager();
+
+            if (recordManager.isSendingFeedback())
+                MessageUtils.sendMessage(context.getSource().asPlayer(), "&eStarted recording take " + take + " for tape " + tape);
+
+            recordManager.startRecording(context.getSource().asPlayer().getUniqueID(), tape, take, entity.toString());
             return play(context, false);
         })))))).then(Commands.literal("stop").executes(context -> {
-            context.getSource().sendFeedback(new StringTextComponent("Recording stopped."), true);
-            Record.getInstance().getRecordManager().stopRecording(context.getSource().asPlayer().getUniqueID());
+            final RecordManager recordManager = Record.getInstance().getRecordManager();
+
+            if (recordManager.isSendingFeedback())
+                MessageUtils.sendMessage(context.getSource().asPlayer(), "&cRecording stopped.");
+
+            recordManager.stopRecording(context.getSource().asPlayer().getUniqueID());
             return 1;
         })).then(Commands.literal("play").then(Commands.argument("tape", StringArgumentType.string()).then(Commands.argument("shouldKill", BoolArgumentType.bool()).executes(context -> play(context, false)).then(Commands.argument("whitelist", StringArgumentType.string()).executes(context -> play(context, true))))))
+        .then(Commands.literal("feedback").executes(context -> {
+            MessageUtils.sendMessage(context.getSource().asPlayer(), "&eFeedback commands are now " + Record.getInstance().getRecordManager().toggleFeedback());
+            return 1;
+        }))
         );
     }
 

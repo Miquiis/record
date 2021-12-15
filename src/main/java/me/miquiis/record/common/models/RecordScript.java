@@ -2,6 +2,7 @@ package me.miquiis.record.common.models;
 
 import com.google.gson.annotations.SerializedName;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.miquiis.record.common.utils.SItemStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
@@ -104,6 +105,10 @@ public class RecordScript {
         // Player Actions
         public boolean isSwingInProgress;
         public float swingProgress;
+        public boolean isCrouching;
+
+        // Player Inventory
+        public SItemStack itemInHand;
 
         // Events
         public List<RecordTickEvent> events;
@@ -119,6 +124,8 @@ public class RecordScript {
             this.yaw = livingEntity.rotationYawHead;
             this.isSwingInProgress = livingEntity.isSwingInProgress;
             this.swingProgress = livingEntity.swingProgress;
+            this.isCrouching = livingEntity.isCrouching();
+            this.itemInHand = new SItemStack(livingEntity.getHeldItemMainhand());
 
             this.events = new ArrayList<>();
         }

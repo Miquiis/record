@@ -10,6 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -26,6 +27,22 @@ public class ForgeEvents {
         new RecordCommand(event.getDispatcher());
 
         ConfigCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerDropItem(ItemTossEvent event)
+    {
+        if (!event.getPlayer().world.isRemote)
+        {
+            final Record instance = Record.getInstance();
+            final RecordManager recordManager = instance.getRecordManager();
+            if (!recordManager.isRecording((event.getPlayer().getUniqueID()))) return;
+            recordManager.getRecordingTake(event.getPlayer().getUniqueID()).recordScript.getLastTick().addRecordTickEvent(new RecordScript.RecordTick.ItemRecordTickEvent(
+                    event.getEntityItem().getItem().getItem().getRegistryName().toString(),
+                    event.getEntityItem().getItem().getCount(),
+                    event.getEntityItem().getItem().getOrCreateTag().toString()
+            ));
+        }
     }
 
     @SubscribeEvent
@@ -70,6 +87,10 @@ public class ForgeEvents {
         livingEntity.setPositionAndRotation(tick.posx, tick.posy, tick.posz, tick.yaw, tick.pitch);
         livingEntity.setRotationYawHead(tick.yaw);
         livingEntity.fallDistance = tick.falldistance;
+        livingEntity.setSneaking(tick.isCrouching);
+
+        if (tick.itemInHand == null) livingEntity.setHeldItem(Hand.MAIN_HAND, null);
+        else livingEntity.setHeldItem(Hand.MAIN_HAND, tick.itemInHand.createItemstack());
 
         if (tick.isSwingInProgress && tick.swingProgress == 0f)
         {
