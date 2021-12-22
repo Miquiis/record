@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -28,6 +29,7 @@ public class RecordTick {
     public float falldistance;
     public float pitch;
     public float yaw;
+    public Vector3d motion;
 
     // Player Actions
     public boolean isSwingInProgress;
@@ -52,6 +54,7 @@ public class RecordTick {
         this.swingProgress = livingEntity.swingProgress;
         this.isCrouching = livingEntity.isCrouching();
         this.itemInHand = new SItemStack(livingEntity.getHeldItemMainhand());
+        this.motion = livingEntity.getMotion();
 
         this.events = new ArrayList<>();
     }

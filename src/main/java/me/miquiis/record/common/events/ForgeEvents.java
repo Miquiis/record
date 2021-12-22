@@ -90,6 +90,7 @@ public class ForgeEvents {
         livingEntity.setRotationYawHead(tick.yaw);
         livingEntity.fallDistance = tick.falldistance;
         livingEntity.setSneaking(tick.isCrouching);
+        livingEntity.setMotion(tick.motion);
 
         if (tick.itemInHand == null) livingEntity.setHeldItem(Hand.MAIN_HAND, null);
         else livingEntity.setHeldItem(Hand.MAIN_HAND, tick.itemInHand.createItemstack());
