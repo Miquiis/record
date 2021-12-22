@@ -4,6 +4,10 @@ import me.miquiis.record.client.ClientKeybinds;
 import me.miquiis.record.common.managers.FileManager;
 import me.miquiis.record.common.managers.RecordManager;
 import me.miquiis.record.common.models.RecordScript;
+import me.miquiis.record.common.models.RecordTape;
+import me.miquiis.record.common.models.RecordTick;
+import me.miquiis.record.common.models.RecordTickEvent;
+import me.miquiis.record.common.utils.JsonDeserializerWithInheritance;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -50,7 +54,9 @@ public class Record
         // do something that can only be done on the client
         ClientKeybinds.registerBindings();
 
-        pathfindingFolder = new FileManager("pathfinding", event.getMinecraftSupplier().get().gameDir, RecordScript.RecordTick.class);
+        pathfindingFolder = new FileManager("pathfinding", event.getMinecraftSupplier().get().gameDir,
+                new FileManager.JsonDeserializer(RecordTickEvent.class, new JsonDeserializerWithInheritance<RecordTickEvent>())
+        );
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
@@ -67,7 +73,9 @@ public class Record
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         // do something when the server starts
-        pathfindingFolder = new FileManager("pathfinding", event.getServer().getDataDirectory(), RecordScript.RecordTick.class);
+        pathfindingFolder = new FileManager("pathfinding", event.getServer().getDataDirectory(),
+                new FileManager.JsonDeserializer(RecordTickEvent.class, new JsonDeserializerWithInheritance<RecordTickEvent>())
+        );
     }
 
     public RecordManager getRecordManager() {

@@ -11,7 +11,7 @@ public class PlayScript {
         this.currentTick = 0;
     }
 
-    public RecordScript.RecordTick playTick()
+    public RecordTick playTick()
     {
         if (currentTick == recordScript.getMaxTicks()) return null;
         return recordScript.ticks.get(currentTick++);

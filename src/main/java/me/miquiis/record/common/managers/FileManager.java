@@ -3,6 +3,7 @@ package me.miquiis.record.common.managers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
+import me.miquiis.record.common.models.RecordTickEvent;
 import me.miquiis.record.common.utils.JsonDeserializerWithInheritance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
@@ -18,7 +19,21 @@ import java.util.Objects;
 
 public class FileManager {
 
+    public static class JsonDeserializer {
+
+        public Class<?> klass;
+        public JsonDeserializerWithInheritance<?> deserializer;
+
+        public<T> JsonDeserializer(Class<T> klass, JsonDeserializerWithInheritance<T> deserializer)
+        {
+            this.klass = klass;
+            this.deserializer = deserializer;
+        }
+
+    }
+
     private Gson gson;
+    private Gson deserializer;
 
     private File minecraftFolder;
     private File mainFolder;
@@ -28,22 +43,24 @@ public class FileManager {
     {
         this.minecraftFolder = Minecraft.getInstance().gameDir;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.deserializer = new GsonBuilder().setPrettyPrinting().create();
         this.mainFolder = new File(minecraftFolder, filePath);
         this.isFirstTime = createFolder();
     }
 
-    public<T> FileManager(String filePath, File directory, Class<T>... classes)
+    public FileManager(String filePath, File directory, JsonDeserializer... jsonDeserializers)
     {
         this.minecraftFolder = directory;
 
         GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
 
-        for (Class<T> klass : classes)
+        for (JsonDeserializer jsonDeserializer : jsonDeserializers)
         {
-            gsonBuilder.registerTypeAdapter(klass, new JsonDeserializerWithInheritance<T>());
+            gsonBuilder.registerTypeAdapter(jsonDeserializer.klass, jsonDeserializer.deserializer);
         }
 
         this.gson = gsonBuilder.create();
+        this.deserializer = new GsonBuilder().setPrettyPrinting().create();
         this.mainFolder = new File(minecraftFolder, filePath);
         this.isFirstTime = createFolder();
     }
@@ -59,15 +76,7 @@ public class FileManager {
 
     public boolean saveObject(String fileName, Object object)
     {
-        try
-        {
-            final String json = gson.toJson(object);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        final String json = gson.toJson(object);
+        final String json = deserializer.toJson(object);
 
         File objectFile = new File(mainFolder, fileName + ".json");
         objectFile.delete();
@@ -76,7 +85,6 @@ public class FileManager {
             Files.write(objectFile.toPath(), json.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
             return true;
         } catch (IOException e) {
-            System.out.println(e.toString());
             e.printStackTrace();
         }
 
@@ -111,7 +119,6 @@ public class FileManager {
             jsonReader.close();
             return object;
         } catch (IOException e) {
-            System.out.println(e.toString());
             e.printStackTrace();
         }
 

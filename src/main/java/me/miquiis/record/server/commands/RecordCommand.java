@@ -45,7 +45,7 @@ public class RecordCommand {
                 MessageUtils.sendMessage(context.getSource().asPlayer(), "&eStarted recording take " + take + " for tape " + tape);
 
             recordManager.startRecording(context.getSource().asPlayer().getUniqueID(), tape, take, entity.toString());
-            return play(context, false);
+            return playBack(context, false);
         })))))).then(Commands.literal("stop").executes(context -> {
             final RecordManager recordManager = Record.getInstance().getRecordManager();
 
@@ -70,6 +70,12 @@ public class RecordCommand {
         boolean shouldKill = BoolArgumentType.getBool(context, "shouldKill");
         List<String> whitelist = hasWhitelist ? new ArrayList<>(Arrays.asList(StringArgumentType.getString(context, "whitelist").split(","))) : new ArrayList<>();
         return Record.getInstance().getRecordManager().startPlaying(context.getSource().asPlayer(), tape, shouldKill, whitelist);
+    }
+
+    private int playBack(CommandContext<CommandSource> context, boolean hasWhitelist) throws CommandSyntaxException {
+        String tape = StringArgumentType.getString(context, "tape");
+        List<String> whitelist = hasWhitelist ? new ArrayList<>(Arrays.asList(StringArgumentType.getString(context, "whitelist").split(","))) : new ArrayList<>();
+        return Record.getInstance().getRecordManager().startPlaying(context.getSource().asPlayer(), tape, true, whitelist);
     }
 
     private int createCustomEvent(CommandContext<CommandSource> context, boolean hasValue) throws CommandSyntaxException {

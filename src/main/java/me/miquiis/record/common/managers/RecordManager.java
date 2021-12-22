@@ -90,7 +90,7 @@ public class RecordManager {
             MessageUtils.sendMessage(player, "&cYou are not recording anything at the moment");
             return -1;
         }
-        recordManager.getRecordingTake(player.getUniqueID()).recordScript.getLastTick().addRecordTickEvent(new RecordScript.RecordTick.CustomRecordTickEvent(
+        recordManager.getRecordingTake(player.getUniqueID()).recordScript.getLastTick().addRecordTickEvent(new CustomRecordTickEvent(
                 label, value
         ));
 

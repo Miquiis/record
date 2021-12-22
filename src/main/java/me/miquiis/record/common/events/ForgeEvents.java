@@ -3,8 +3,10 @@ package me.miquiis.record.common.events;
 import me.miquiis.record.Record;
 import me.miquiis.record.common.events.custom.RecordTapeEndEvent;
 import me.miquiis.record.common.managers.RecordManager;
+import me.miquiis.record.common.models.ItemRecordTickEvent;
 import me.miquiis.record.common.models.PlayTake;
 import me.miquiis.record.common.models.RecordScript;
+import me.miquiis.record.common.models.RecordTick;
 import me.miquiis.record.server.commands.RecordCommand;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
@@ -37,7 +39,7 @@ public class ForgeEvents {
             final Record instance = Record.getInstance();
             final RecordManager recordManager = instance.getRecordManager();
             if (!recordManager.isRecording((event.getPlayer().getUniqueID()))) return;
-            recordManager.getRecordingTake(event.getPlayer().getUniqueID()).recordScript.getLastTick().addRecordTickEvent(new RecordScript.RecordTick.ItemRecordTickEvent(
+            recordManager.getRecordingTake(event.getPlayer().getUniqueID()).recordScript.getLastTick().addRecordTickEvent(new ItemRecordTickEvent(
                     event.getEntityItem().getItem().getItem().getRegistryName().toString(),
                     event.getEntityItem().getItem().getCount(),
                     event.getEntityItem().getItem().getOrCreateTag().toString()
@@ -55,7 +57,7 @@ public class ForgeEvents {
 
             if (!recordManager.isRecording((event.player.getUniqueID()))) return;
 
-            recordManager.getRecordingTake(event.player.getUniqueID()).recordScript.addTick(new RecordScript.RecordTick(event.player));
+            recordManager.getRecordingTake(event.player.getUniqueID()).recordScript.addTick(new RecordTick(event.player));
         }
     }
 
@@ -70,7 +72,7 @@ public class ForgeEvents {
         final PlayTake playTake = recordManager.getEntityTake(event.getEntity().getUniqueID());
         if (playTake == null) return;
 
-        final RecordScript.RecordTick tick = playTake.takeScript.playTick();
+        final RecordTick tick = playTake.takeScript.playTick();
 
         if (tick == null)
         {
