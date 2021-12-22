@@ -1,14 +1,14 @@
 package me.miquiis.record.common.events;
 
 import me.miquiis.record.Record;
-import me.miquiis.record.common.events.custom.RecordEventPlayEvent;
+import me.miquiis.record.common.events.custom.RecordTapeEndEvent;
 import me.miquiis.record.common.managers.RecordManager;
 import me.miquiis.record.common.models.PlayTake;
 import me.miquiis.record.common.models.RecordScript;
-import me.miquiis.record.server.commands.HelloWorldCommand;
 import me.miquiis.record.server.commands.RecordCommand;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
@@ -24,7 +24,6 @@ public class ForgeEvents {
     @SubscribeEvent
     public static void onCommandsRegister(RegisterCommandsEvent event)
     {
-        new HelloWorldCommand(event.getDispatcher());
         new RecordCommand(event.getDispatcher());
 
         ConfigCommand.register(event.getDispatcher());
@@ -80,7 +79,7 @@ public class ForgeEvents {
                 livingEntity.remove();
             }
             if (recordManager.stopPlaying(playTake.tapeName, playTake.takeName)) {
-                System.out.println("Animation has ended");
+                MinecraftForge.EVENT_BUS.post(new RecordTapeEndEvent(playTake.tapeName, playTake));
             }
             return;
         }

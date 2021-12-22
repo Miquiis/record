@@ -7,7 +7,7 @@ public class MessageUtils {
 
     public static void sendMessage(ServerPlayerEntity player, String message)
     {
-        player.sendMessage(new StringTextComponent(ColorUtils.color(message)), null);
+        player.sendStatusMessage(new StringTextComponent(ColorUtils.color(message)), false);
     }
 
 }

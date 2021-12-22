@@ -47,6 +47,7 @@ public class RecordScript {
             public String eventValue;
 
             public CustomRecordTickEvent(String eventLabel, String eventValue) {
+                super();
                 this.eventLabel = eventLabel;
                 this.eventValue = eventValue;
             }
@@ -65,6 +66,7 @@ public class RecordScript {
             public String nbtTag;
 
             public ItemRecordTickEvent(String itemID, int itemCount, String nbtTag) {
+                super();
                 this.itemID = itemID;
                 this.itemCount = itemCount;
                 this.nbtTag = nbtTag;

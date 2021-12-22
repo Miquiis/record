@@ -50,7 +50,7 @@ public class Record
         // do something that can only be done on the client
         ClientKeybinds.registerBindings();
 
-        pathfindingFolder = new FileManager("pathfinding", event.getMinecraftSupplier().get().gameDir, RecordScript.RecordTick.RecordTickEvent.class);
+        pathfindingFolder = new FileManager("pathfinding", event.getMinecraftSupplier().get().gameDir, RecordScript.RecordTick.class);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
@@ -67,7 +67,7 @@ public class Record
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         // do something when the server starts
-        pathfindingFolder = new FileManager("pathfinding", event.getServer().getDataDirectory(), RecordScript.RecordTick.RecordTickEvent.class);
+        pathfindingFolder = new FileManager("pathfinding", event.getServer().getDataDirectory(), RecordScript.RecordTick.class);
     }
 
     public RecordManager getRecordManager() {
