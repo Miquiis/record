@@ -31,15 +31,6 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onCustomRecordEvent(RecordEventPlayEvent e)
-    {
-        if (e.getEventLabel().equalsIgnoreCase("test"))
-        {
-            System.out.println("Test Event Triggered");
-        }
-    }
-
-    @SubscribeEvent
     public static void onPlayerDropItem(ItemTossEvent event)
     {
         if (!event.getPlayer().world.isRemote)
