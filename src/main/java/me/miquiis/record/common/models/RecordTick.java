@@ -29,7 +29,6 @@ public class RecordTick {
     public float falldistance;
     public float pitch;
     public float yaw;
-    public Vector3d motion;
 
     // Player Actions
     public boolean isSwingInProgress;
@@ -54,7 +53,6 @@ public class RecordTick {
         this.swingProgress = livingEntity.swingProgress;
         this.isCrouching = livingEntity.isCrouching();
         this.itemInHand = new SItemStack(livingEntity.getHeldItemMainhand());
-        this.motion = livingEntity.getMotion();
 
         this.events = new ArrayList<>();
     }
