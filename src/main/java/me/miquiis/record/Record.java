@@ -67,7 +67,7 @@ public class Record
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         // do something when the server starts
-        pathfindingFolder = new FileManager("pathfinding", event.getServer().getDataDirectory(), RecordScript.RecordTick.class);
+        pathfindingFolder = new FileManager("pathfinding", event.getServer().getDataDirectory(), RecordScript.RecordTick.RecordTickEvent.class);
     }
 
     public RecordManager getRecordManager() {

@@ -59,6 +59,9 @@ public class RecordCommand {
             MessageUtils.sendMessage(context.getSource().asPlayer(), "&eFeedback commands are now " + Record.getInstance().getRecordManager().toggleFeedback());
             return 1;
         }))
+        .then(Commands.literal("addEvent").then(Commands.argument("label", StringArgumentType.string()).executes(context -> createCustomEvent(context, false))
+                .then(Commands.argument("value", StringArgumentType.string()).executes(context -> createCustomEvent(context, true))))
+        )
         );
     }
 
@@ -67,6 +70,12 @@ public class RecordCommand {
         boolean shouldKill = BoolArgumentType.getBool(context, "shouldKill");
         List<String> whitelist = hasWhitelist ? new ArrayList<>(Arrays.asList(StringArgumentType.getString(context, "whitelist").split(","))) : new ArrayList<>();
         return Record.getInstance().getRecordManager().startPlaying(context.getSource().asPlayer(), tape, shouldKill, whitelist);
+    }
+
+    private int createCustomEvent(CommandContext<CommandSource> context, boolean hasValue) throws CommandSyntaxException {
+        String label = StringArgumentType.getString(context, "label");
+        String value = hasValue ? StringArgumentType.getString(context, "value") : null;
+        return Record.getInstance().getRecordManager().createCustomEvent(context.getSource().asPlayer(), label, value);
     }
 
 }

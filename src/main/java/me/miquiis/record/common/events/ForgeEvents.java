@@ -1,6 +1,7 @@
 package me.miquiis.record.common.events;
 
 import me.miquiis.record.Record;
+import me.miquiis.record.common.events.custom.RecordEventPlayEvent;
 import me.miquiis.record.common.managers.RecordManager;
 import me.miquiis.record.common.models.PlayTake;
 import me.miquiis.record.common.models.RecordScript;
@@ -27,6 +28,15 @@ public class ForgeEvents {
         new RecordCommand(event.getDispatcher());
 
         ConfigCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void onCustomRecordEvent(RecordEventPlayEvent e)
+    {
+        if (e.getEventLabel().equalsIgnoreCase("test"))
+        {
+            System.out.println("Test Event Triggered");
+        }
     }
 
     @SubscribeEvent

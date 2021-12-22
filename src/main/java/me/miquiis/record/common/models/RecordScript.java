@@ -1,7 +1,9 @@
 package me.miquiis.record.common.models;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.miquiis.record.common.events.custom.RecordEventPlayEvent;
 import me.miquiis.record.common.utils.SItemStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -11,6 +13,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
@@ -23,11 +26,12 @@ public class RecordScript {
 
         public static class RecordTickEvent {
 
-            protected transient String type;
+            @SerializedName("type")
+            private String typeName;
 
-            public RecordTickEvent(String type)
+            public RecordTickEvent()
             {
-                this.type = type;
+                typeName = getClass().getName();
             }
 
             public void execute(Entity entity)
@@ -37,6 +41,23 @@ public class RecordScript {
 
         }
 
+        public static class CustomRecordTickEvent extends RecordTickEvent {
+
+            public String eventLabel;
+            public String eventValue;
+
+            public CustomRecordTickEvent(String eventLabel, String eventValue) {
+                this.eventLabel = eventLabel;
+                this.eventValue = eventValue;
+            }
+
+            @Override
+            public void execute(Entity entity) {
+                super.execute(entity);
+                MinecraftForge.EVENT_BUS.post(new RecordEventPlayEvent(entity, eventLabel, eventValue));
+            }
+        }
+
         public static class ItemRecordTickEvent extends RecordTickEvent {
 
             public String itemID;
@@ -44,7 +65,6 @@ public class RecordScript {
             public String nbtTag;
 
             public ItemRecordTickEvent(String itemID, int itemCount, String nbtTag) {
-                super("item");
                 this.itemID = itemID;
                 this.itemCount = itemCount;
                 this.nbtTag = nbtTag;
@@ -91,9 +111,6 @@ public class RecordScript {
             }
         }
 
-        @SerializedName("type")
-        private String typeName;
-
         // Player Position
         public double posx;
         public double posy;
@@ -115,7 +132,6 @@ public class RecordScript {
 
         public RecordTick(LivingEntity livingEntity)
         {
-            typeName = getClass().getName();
             this.posx = livingEntity.getPosX();
             this.posy = livingEntity.getPosY();
             this.posz = livingEntity.getPosZ();

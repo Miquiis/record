@@ -83,6 +83,21 @@ public class RecordManager {
         return false;
     }
 
+    public int createCustomEvent(ServerPlayerEntity player, String label, String value) {
+        final Record instance = Record.getInstance();
+        final RecordManager recordManager = instance.getRecordManager();
+        if (!recordManager.isRecording((player.getUniqueID()))) {
+            MessageUtils.sendMessage(player, "&cYou are not recording anything at the moment");
+            return -1;
+        }
+        recordManager.getRecordingTake(player.getUniqueID()).recordScript.getLastTick().addRecordTickEvent(new RecordScript.RecordTick.CustomRecordTickEvent(
+                label, value
+        ));
+
+        MessageUtils.sendMessage(player, "&aCustom event has been added.");
+        return 1;
+    }
+
     public int startPlaying(ServerPlayerEntity player, String tapeName, boolean shouldKill, @Nonnull List<String> whitelist)
     {
         final RecordManager recordManager = Record.getInstance().getRecordManager();

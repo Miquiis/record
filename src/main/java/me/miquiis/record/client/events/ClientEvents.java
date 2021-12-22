@@ -14,7 +14,11 @@ public class ClientEvents {
     public static void onPress(final InputEvent.KeyInputEvent event) {
         final KeyBinding[] keyBindings = ClientKeybinds.keyBindings;
         if (keyBindings[0].isKeyDown()) {
+            // Start Recording
 //            Minecraft.getInstance().displayGuiScreen(new TestGUI(new StringTextComponent("Test?")));
+        } else if (keyBindings[1].isKeyDown()) {
+            // Stop Recording
+
         }
     }
 
