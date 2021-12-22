@@ -3,10 +3,7 @@ package me.miquiis.record.common.events;
 import me.miquiis.record.Record;
 import me.miquiis.record.common.events.custom.RecordTapeEndEvent;
 import me.miquiis.record.common.managers.RecordManager;
-import me.miquiis.record.common.models.ItemRecordTickEvent;
-import me.miquiis.record.common.models.PlayTake;
-import me.miquiis.record.common.models.RecordScript;
-import me.miquiis.record.common.models.RecordTick;
+import me.miquiis.record.common.models.*;
 import me.miquiis.record.server.commands.RecordCommand;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
@@ -57,7 +54,11 @@ public class ForgeEvents {
 
             if (!recordManager.isRecording((event.player.getUniqueID()))) return;
 
-            recordManager.getRecordingTake(event.player.getUniqueID()).recordScript.addTick(new RecordTick(event.player));
+            final RecordingTake recordingTake = recordManager.getRecordingTake(event.player.getUniqueID());
+
+            if (recordingTake.isPaused) return;
+
+            recordingTake.recordScript.addTick(new RecordTick(event.player));
         }
     }
 

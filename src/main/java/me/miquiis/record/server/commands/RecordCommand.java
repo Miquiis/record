@@ -32,7 +32,7 @@ public class RecordCommand {
             if (recordManager.isSendingFeedback())
                 MessageUtils.sendMessage(context.getSource().asPlayer(), "&eStarted recording take " + take + " for tape " + tape);
 
-            recordManager.startRecording(context.getSource().asPlayer().getUniqueID(), tape, take, entity.toString());
+            recordManager.startRecording(context.getSource().asPlayer(), tape, take, entity);
             return 1;
         }).then(Commands.argument("playback", StringArgumentType.string()).executes(context -> {
             String tape = StringArgumentType.getString(context, "tape");
@@ -44,7 +44,7 @@ public class RecordCommand {
             if (recordManager.isSendingFeedback())
                 MessageUtils.sendMessage(context.getSource().asPlayer(), "&eStarted recording take " + take + " for tape " + tape);
 
-            recordManager.startRecording(context.getSource().asPlayer().getUniqueID(), tape, take, entity.toString());
+            recordManager.startRecording(context.getSource().asPlayer(), tape, take, entity);
             return playBack(context, false);
         })))))).then(Commands.literal("stop").executes(context -> {
             final RecordManager recordManager = Record.getInstance().getRecordManager();
@@ -52,11 +52,16 @@ public class RecordCommand {
             if (recordManager.isSendingFeedback())
                 MessageUtils.sendMessage(context.getSource().asPlayer(), "&cRecording stopped.");
 
-            recordManager.stopRecording(context.getSource().asPlayer().getUniqueID());
+            recordManager.stopRecording(context.getSource().asPlayer());
             return 1;
         })).then(Commands.literal("play").then(Commands.argument("tape", StringArgumentType.string()).then(Commands.argument("shouldKill", BoolArgumentType.bool()).executes(context -> play(context, false)).then(Commands.argument("whitelist", StringArgumentType.string()).executes(context -> play(context, true))))))
         .then(Commands.literal("feedback").executes(context -> {
             MessageUtils.sendMessage(context.getSource().asPlayer(), "&eFeedback commands are now " + Record.getInstance().getRecordManager().toggleFeedback());
+            return 1;
+        }))
+        .then(Commands.literal("pause").executes(context -> {
+            final RecordManager recordManager = Record.getInstance().getRecordManager();
+            recordManager.pauseRecording(context.getSource().asPlayer());
             return 1;
         }))
         .then(Commands.literal("addEvent").then(Commands.argument("label", StringArgumentType.string()).executes(context -> createCustomEvent(context, false))

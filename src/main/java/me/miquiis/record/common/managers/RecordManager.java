@@ -1,6 +1,9 @@
 package me.miquiis.record.common.managers;
 
 import com.mojang.brigadier.Message;
+import de.budschie.bmorph.main.BMorphMod;
+import de.budschie.bmorph.morph.MorphManagerHandlers;
+import de.budschie.bmorph.morph.MorphUtil;
 import me.miquiis.record.Record;
 import me.miquiis.record.common.models.*;
 import me.miquiis.record.common.utils.MessageUtils;
@@ -9,8 +12,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -39,18 +44,37 @@ public class RecordManager {
         return sendFeedback = !sendFeedback;
     }
 
-    public void startRecording(UUID recorder, String tape, String take, String entity)
+    public void startRecording(ServerPlayerEntity player, String tape, String take, ResourceLocation entity)
     {
-        if (isRecording(recorder)) return;
-        recording.put(recorder, new RecordingTake(tape, take, entity));
+        if (isRecording(player.getUniqueID())) return;
+        CompoundNBT nbt = new CompoundNBT();
+        nbt.putString("id", entity.toString());
+        MorphUtil.morphToServer(Optional.of(MorphManagerHandlers.FALLBACK.createMorph(ForgeRegistries.ENTITIES.getValue(entity), nbt, null, true)), Optional.empty(), player);
+        recording.put(player.getUniqueID(), new RecordingTake(tape, take, entity.toString()));
     }
 
-    public void stopRecording(UUID recorder)
+    public void pauseRecording(ServerPlayerEntity player)
     {
-        if (!isRecording(recorder)) return;
+        if (!isRecording(player.getUniqueID())) return;
+        RecordingTake recordingTake = getRecordingTake(player.getUniqueID());
+        if(recordingTake.togglePause())
+        {
+            if (sendFeedback)
+            MessageUtils.sendMessage(player, "&eRecording is now paused.");
+        }
+        else
+        {
+            if (sendFeedback)
+                MessageUtils.sendMessage(player, "&aRecording is now resumed.");
+        }
+    }
 
-        RecordingTake recordingTake = getRecordingTake(recorder);
-        recording.remove(recorder);
+    public void stopRecording(ServerPlayerEntity recorder)
+    {
+        if (!isRecording(recorder.getUniqueID())) return;
+
+        RecordingTake recordingTake = getRecordingTake(recorder.getUniqueID());
+        recording.remove(recorder.getUniqueID());
 
         RecordTape recordTape = getRecordTape(recordingTake.recordingTape);
         recordTape.addTake(new RecordTake(recordingTake.recordingTape, recordingTake.recordingTake, recordingTake.recordingEntity, recordingTake.recordScript));
@@ -58,6 +82,8 @@ public class RecordManager {
         cachedTapes.add(recordTape);
 
         mod.getPathfindingFolder().saveObject(recordTape.tapeName, recordTape);
+
+        MorphUtil.morphToServer(Optional.empty(), Optional.empty(), recorder);
     }
 
     public void stopPlaying(String tape)
