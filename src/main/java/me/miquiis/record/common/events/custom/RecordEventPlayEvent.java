@@ -1,7 +1,5 @@
 package me.miquiis.record.common.events.custom;
 
-import me.miquiis.record.common.models.RecordTake;
-import me.miquiis.record.common.models.RecordTape;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.eventbus.api.Event;
 

@@ -50,7 +50,7 @@ public class Record
         // do something that can only be done on the client
         ClientKeybinds.registerBindings();
 
-        pathfindingFolder = new FileManager("pathfinding", event.getMinecraftSupplier().get().gameDir, RecordScript.RecordTick.class);
+        pathfindingFolder = new FileManager("pathfinding", event.getMinecraftSupplier().get().gameDir, RecordScript.RecordTick.RecordTickEvent.class);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
