@@ -7,6 +7,7 @@ import me.miquiis.record.common.models.RecordTickEvent;
 import me.miquiis.record.common.utils.JsonDeserializerWithInheritance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -89,6 +91,17 @@ public class FileManager {
         }
 
         return false;
+    }
+
+    public List<String> peakFiles(String extension)
+    {
+        List<String> files = new ArrayList<>();
+        Arrays.stream(mainFolder.listFiles()).forEach(file -> {
+            if (extension.equalsIgnoreCase(FilenameUtils.getExtension(file.getName()))) {
+                files.add(FilenameUtils.getBaseName(file.getName()));
+            }
+        });
+        return files;
     }
 
     public <T> List<T> loadObjects(Class<T> objectClass)

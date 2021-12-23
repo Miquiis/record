@@ -22,7 +22,7 @@ import java.util.List;
 public class RecordCommand {
     public RecordCommand(CommandDispatcher<CommandSource> dispatcher)
     {
-        dispatcher.register(Commands.literal("record").then(Commands.literal("start").then(Commands.argument("tape", StringArgumentType.string()).then(Commands.argument("take", StringArgumentType.string()).then(Commands.argument("entity", EntitySummonArgument.entitySummon()).suggests(SuggestionProviders.SUMMONABLE_ENTITIES).executes(context -> {
+        dispatcher.register(Commands.literal("record").then(Commands.literal("start").then(Commands.argument("tape", StringArgumentType.string()).suggests(CustomSuggestionProviders.AVAILABLE_TAPES).then(Commands.argument("take", StringArgumentType.string()).then(Commands.argument("entity", EntitySummonArgument.entitySummon()).suggests(SuggestionProviders.SUMMONABLE_ENTITIES).executes(context -> {
             String tape = StringArgumentType.getString(context, "tape");
             String take = StringArgumentType.getString(context, "take");
             ResourceLocation entity = EntitySummonArgument.getEntityId(context, "entity");
@@ -48,10 +48,6 @@ public class RecordCommand {
             return playBack(context, false);
         })))))).then(Commands.literal("stop").executes(context -> {
             final RecordManager recordManager = Record.getInstance().getRecordManager();
-
-            if (recordManager.isSendingFeedback())
-                MessageUtils.sendMessage(context.getSource().asPlayer(), "&cRecording stopped.");
-
             recordManager.stopRecording(context.getSource().asPlayer());
             return 1;
         })).then(Commands.literal("play").then(Commands.argument("tape", StringArgumentType.string()).then(Commands.argument("shouldKill", BoolArgumentType.bool()).executes(context -> play(context, false)).then(Commands.argument("whitelist", StringArgumentType.string()).executes(context -> play(context, true))))))

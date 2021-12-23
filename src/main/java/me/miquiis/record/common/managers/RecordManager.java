@@ -73,6 +73,9 @@ public class RecordManager {
     {
         if (!isRecording(recorder.getUniqueID())) return;
 
+        if (isSendingFeedback())
+            MessageUtils.sendMessage(recorder, "&cRecording stopped.");
+
         RecordingTake recordingTake = getRecordingTake(recorder.getUniqueID());
         recording.remove(recorder.getUniqueID());
 
@@ -210,6 +213,17 @@ public class RecordManager {
             }
         }
         return null;
+    }
+
+    public List<String> peekTapes() {
+        List<String> tapes = new ArrayList<>();
+        cachedTapes.forEach(cachedTapes -> tapes.add(cachedTapes.tapeName));
+
+        mod.getPathfindingFolder().peakFiles("json").forEach(fileName -> {
+            if (!tapes.contains(fileName)) tapes.add(fileName);
+        });
+
+        return tapes;
     }
 
     public boolean isSendingFeedback() {

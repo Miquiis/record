@@ -8,6 +8,7 @@ import me.miquiis.record.common.models.RecordTape;
 import me.miquiis.record.common.models.RecordTick;
 import me.miquiis.record.common.models.RecordTickEvent;
 import me.miquiis.record.common.utils.JsonDeserializerWithInheritance;
+import me.miquiis.record.server.network.RecordNetwork;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -46,7 +47,7 @@ public class Record
     private void setup(final FMLCommonSetupEvent event)
     {
         instance = this;
-
+        RecordNetwork.init();
         recordManager = new RecordManager(this);
     }
 
