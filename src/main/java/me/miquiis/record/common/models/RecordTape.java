@@ -32,6 +32,7 @@ public class RecordTape {
 
     public void addTake(RecordTake recordTake)
     {
+        this.takes.removeIf(savedTake -> savedTake.takeName.equalsIgnoreCase(recordTake.takeName));
         this.takes.add(recordTake);
     }
 

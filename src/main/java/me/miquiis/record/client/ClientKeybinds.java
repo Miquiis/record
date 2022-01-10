@@ -9,8 +9,8 @@ public class ClientKeybinds {
     public static KeyBinding[] keyBindings;
 
     public static void registerBindings() {
-        ClientKeybinds.keyBindings[0] = new KeyBinding("key.record.start.desc", 82, "key.record.group");
-        ClientKeybinds.keyBindings[1] = new KeyBinding("key.record.stop.desc", 89, "key.record.group");
+        ClientKeybinds.keyBindings[0] = new KeyBinding("key.record.stop.desc", 89, "key.record.group");
+        ClientKeybinds.keyBindings[1] = new KeyBinding("key.record.start.desc", 82, "key.record.group");
         for (final KeyBinding keyBinding : ClientKeybinds.keyBindings) {
             ClientRegistry.registerKeyBinding(keyBinding);
         }

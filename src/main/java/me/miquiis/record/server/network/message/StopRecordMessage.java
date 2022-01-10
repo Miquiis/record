@@ -32,7 +32,6 @@ public class StopRecordMessage {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> {
             ServerPlayerEntity sender = contextSupplier.get().getSender();
-            System.out.println("Handling");
             Record.getInstance().getRecordManager().stopRecording(sender);
         });
         context.setPacketHandled(true);

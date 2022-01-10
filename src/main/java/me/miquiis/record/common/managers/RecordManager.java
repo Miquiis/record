@@ -19,6 +19,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class RecordManager {
@@ -69,6 +70,35 @@ public class RecordManager {
         }
     }
 
+    public void pausePlaying(ServerPlayerEntity player)
+    {
+        if (currentPlaying.isEmpty()) return;
+        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+        currentPlaying.forEach((s, playTakes) -> {
+            playTakes.forEach(playTake -> {
+                if (!atomicBoolean.get())
+                {
+                    if (isSendingFeedback())
+                        MessageUtils.sendMessage(player, playTake.togglePause() ? "&cPlaying paused." : "&aPlaying Resumed");
+                    atomicBoolean.set(true);
+                }
+            });
+        });
+    }
+
+    public void handlePause(ServerPlayerEntity player)
+    {
+        if (isRecording(player.getUniqueID()))
+        {
+            pauseRecording(player);
+            return;
+        }
+        else
+        {
+            pausePlaying(player);
+        }
+    }
+
     public void stopRecording(ServerPlayerEntity recorder)
     {
         if (!isRecording(recorder.getUniqueID())) return;
@@ -81,8 +111,6 @@ public class RecordManager {
 
         RecordTape recordTape = getRecordTape(recordingTake.recordingTape);
         recordTape.addTake(new RecordTake(recordingTake.recordingTape, recordingTake.recordingTake, recordingTake.recordingEntity, recordingTake.recordScript));
-
-        cachedTapes.add(recordTape);
 
         mod.getPathfindingFolder().saveObject(recordTape.tapeName, recordTape);
 
@@ -224,6 +252,14 @@ public class RecordManager {
         });
 
         return tapes;
+    }
+
+    public List<String> peekTakes(String tape)
+    {
+        final RecordTape recordTape = getRecordTape(tape);
+        List<String> takes = new ArrayList<>();
+        recordTape.takes.forEach(tapeTakes -> takes.add(tapeTakes.takeName));
+        return takes;
     }
 
     public boolean isSendingFeedback() {

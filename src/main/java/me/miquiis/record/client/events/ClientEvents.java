@@ -3,6 +3,7 @@ package me.miquiis.record.client.events;
 import me.miquiis.record.Record;
 import me.miquiis.record.client.ClientKeybinds;
 import me.miquiis.record.server.network.RecordNetwork;
+import me.miquiis.record.server.network.message.PauseMessage;
 import me.miquiis.record.server.network.message.StopRecordMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -21,6 +22,7 @@ public class ClientEvents {
         if (keyBindings[0].isKeyDown()) {
             RecordNetwork.CHANNEL.sendToServer(new StopRecordMessage());
         } else if (keyBindings[1].isKeyDown()) {
+            RecordNetwork.CHANNEL.sendToServer(new PauseMessage());
         }
     }
 

@@ -1,5 +1,6 @@
 package me.miquiis.record.server.commands;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.miquiis.record.Record;
 import net.minecraft.command.CommandSource;
@@ -15,5 +16,8 @@ public class CustomSuggestionProviders {
             (p, p2) -> ISuggestionProvider.suggest(Record.getInstance().getRecordManager().peekTapes(), p2)
     );
 
+    public static final SuggestionProvider<CommandSource> AVAILABLE_TAKES = SuggestionProviders.register(new ResourceLocation("available_takes"),
+            (p, p2) -> ISuggestionProvider.suggest(Record.getInstance().getRecordManager().peekTakes(StringArgumentType.getString(p, "tape")), p2)
+    );
 
 }

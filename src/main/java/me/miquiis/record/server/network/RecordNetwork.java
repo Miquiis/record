@@ -1,6 +1,7 @@
 package me.miquiis.record.server.network;
 
 import me.miquiis.record.Record;
+import me.miquiis.record.server.network.message.PauseMessage;
 import me.miquiis.record.server.network.message.StopRecordMessage;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -17,6 +18,7 @@ public class RecordNetwork {
 
     public static void init() {
         CHANNEL.registerMessage(0, StopRecordMessage.class, StopRecordMessage::encode, StopRecordMessage::decode, StopRecordMessage::handle);
+        CHANNEL.registerMessage(1, PauseMessage.class, PauseMessage::encode, PauseMessage::decode, PauseMessage::handle);
     }
 
 }
