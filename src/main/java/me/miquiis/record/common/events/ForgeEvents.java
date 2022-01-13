@@ -7,11 +7,15 @@ import me.miquiis.record.common.models.*;
 import me.miquiis.record.server.commands.RecordCommand;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
+import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -26,6 +30,35 @@ public class ForgeEvents {
         new RecordCommand(event.getDispatcher());
 
         ConfigCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTakeDamage(LivingDamageEvent event)
+    {
+        if (!event.getEntity().world.isRemote)
+        {
+            final Record instance = Record.getInstance();
+            final RecordManager recordManager = instance.getRecordManager();
+            if (!recordManager.isRecording((event.getEntity().getUniqueID()))) return;
+            recordManager.getRecordingTake(event.getEntity().getUniqueID()).recordScript.getLastTick().addRecordTickEvent(new HitRecordTickEvent(
+                    event.getAmount()
+            ));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerSendMessage(ServerChatEvent event)
+    {
+        if (!event.getPlayer().world.isRemote)
+        {
+            final Record instance = Record.getInstance();
+            final RecordManager recordManager = instance.getRecordManager();
+            if (!recordManager.isRecording((event.getPlayer().getUniqueID()))) return;
+            recordManager.getRecordingTake(event.getPlayer().getUniqueID()).recordScript.getLastTick().addRecordTickEvent(new ChatRecordTickEvent(
+                    event.getUsername(),
+                    event.getMessage()
+            ));
+        }
     }
 
     @SubscribeEvent

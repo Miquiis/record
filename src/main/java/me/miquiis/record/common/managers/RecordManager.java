@@ -1,6 +1,7 @@
 package me.miquiis.record.common.managers;
 
 import com.mojang.brigadier.Message;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.budschie.bmorph.main.BMorphMod;
 import de.budschie.bmorph.morph.MorphManagerHandlers;
 import de.budschie.bmorph.morph.MorphUtil;
@@ -12,6 +13,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
@@ -183,6 +186,11 @@ public class RecordManager {
                 Entity spawnedEntity = entityType.spawn(player.getServerWorld(), null, null, new BlockPos(recordScript.getFirstTick().posx, recordScript.getFirstTick().posy, recordScript.getFirstTick().posz), SpawnReason.COMMAND, false,  false);
                 CompoundNBT nbt = spawnedEntity.serializeNBT();
                 nbt.putBoolean("NoAI", true);
+                try {
+                    nbt.merge(JsonToNBT.getTagFromJson("{Tags:[\"record\"]}"));
+                } catch (CommandSyntaxException e) {
+                    e.printStackTrace();
+                }
 
                 spawnedEntity.deserializeNBT(nbt);
                 playTakes.add(new PlayTake(recordTake, shouldKill, spawnedEntity.getUniqueID()));
