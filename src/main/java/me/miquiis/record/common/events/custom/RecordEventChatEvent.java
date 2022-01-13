@@ -22,4 +22,12 @@ public class RecordEventChatEvent extends Event {
     public Entity getEntity() {
         return entity;
     }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
 }
