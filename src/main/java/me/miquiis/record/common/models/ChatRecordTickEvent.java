@@ -8,6 +8,8 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.util.UUID;
+
 public class ChatRecordTickEvent extends RecordTickEvent {
 
     private String playerName;
@@ -25,7 +27,7 @@ public class ChatRecordTickEvent extends RecordTickEvent {
         {
             if (entity.world.isRemote) return;
             entity.world.getPlayers().forEach(playerEntity -> {
-                playerEntity.sendMessage(new StringTextComponent("<" + playerName + "> " + message), null);
+                playerEntity.sendMessage(new StringTextComponent("<" + playerName + "> " + message), new UUID(0, 0));
             });
         }
     }
