@@ -131,6 +131,14 @@ public class RecordManager {
         if (!isPlaying(tape)) return true;
         List<PlayTake> playTakes = currentPlaying.get(tape);
         if (playTakes == null) return true;
+        PlayTake foundTake = playTakes.stream().filter(playTake -> playTake.takeName.equalsIgnoreCase(take)).findFirst().orElse(null);
+        if (foundTake != null)
+        {
+            if (foundTake.currentEntity != null)
+            {
+                foundTake.currentEntity.removeTag("recording");
+            }
+        }
         playTakes.removeIf(playTake -> playTake.takeName.equalsIgnoreCase(take));
 
         if (playTakes.isEmpty())
@@ -185,15 +193,14 @@ public class RecordManager {
             optionalEntityType.ifPresent(entityType -> {
                 Entity spawnedEntity = entityType.spawn(player.getServerWorld(), null, null, new BlockPos(recordScript.getFirstTick().posx, recordScript.getFirstTick().posy, recordScript.getFirstTick().posz), SpawnReason.COMMAND, false,  false);
                 CompoundNBT nbt = spawnedEntity.serializeNBT();
-                nbt.putBoolean("Recording", true);
                 try {
-                    nbt.merge(JsonToNBT.getTagFromJson("{Tags:[\"record\"]}"));
+                    nbt.merge(JsonToNBT.getTagFromJson("{Tags:[\"record\",\"recording\"]}"));
                 } catch (CommandSyntaxException e) {
                     e.printStackTrace();
                 }
 
                 spawnedEntity.deserializeNBT(nbt);
-                playTakes.add(new PlayTake(recordTake, shouldKill, spawnedEntity.getUniqueID()));
+                playTakes.add(new PlayTake(recordTake, shouldKill, spawnedEntity));
             });
         });
 
