@@ -53,7 +53,7 @@ public class RecordManager {
         if (isRecording(player.getUniqueID())) return;
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("id", entity.toString());
-        MorphUtil.morphToServer(Optional.of(MorphManagerHandlers.FALLBACK.createMorph(ForgeRegistries.ENTITIES.getValue(entity), nbt, null, true)), Optional.empty(), player);
+        //MorphUtil.morphToServer(Optional.of(MorphManagerHandlers.FALLBACK.createMorph(ForgeRegistries.ENTITIES.getValue(entity), nbt, null, true)), Optional.empty(), player);
         recording.put(player.getUniqueID(), new RecordingTake(tape, take, entity.toString()));
     }
 
@@ -117,7 +117,7 @@ public class RecordManager {
 
         mod.getPathfindingFolder().saveObject(recordTape.tapeName, recordTape);
 
-        MorphUtil.morphToServer(Optional.empty(), Optional.empty(), recorder);
+        //MorphUtil.morphToServer(Optional.empty(), Optional.empty(), recorder);
     }
 
     public void stopPlaying(String tape)
@@ -185,7 +185,7 @@ public class RecordManager {
             optionalEntityType.ifPresent(entityType -> {
                 Entity spawnedEntity = entityType.spawn(player.getServerWorld(), null, null, new BlockPos(recordScript.getFirstTick().posx, recordScript.getFirstTick().posy, recordScript.getFirstTick().posz), SpawnReason.COMMAND, false,  false);
                 CompoundNBT nbt = spawnedEntity.serializeNBT();
-                nbt.putBoolean("NoAI", true);
+                nbt.putBoolean("Recording", true);
                 try {
                     nbt.merge(JsonToNBT.getTagFromJson("{Tags:[\"record\"]}"));
                 } catch (CommandSyntaxException e) {
