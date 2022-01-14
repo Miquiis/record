@@ -200,6 +200,7 @@ public class RecordManager {
                 Entity spawnedEntity = entityType.spawn(player.getServerWorld(), null, null, new BlockPos(recordScript.getFirstTick().posx, recordScript.getFirstTick().posy, recordScript.getFirstTick().posz), SpawnReason.COMMAND, false,  false);
                 CompoundNBT nbt = spawnedEntity.serializeNBT();
                 try {
+                    nbt.putBoolean("PersistenceRequired", true);
                     nbt.merge(JsonToNBT.getTagFromJson("{Tags:[\"record\",\"recording\"]}"));
                 } catch (CommandSyntaxException e) {
                     e.printStackTrace();
