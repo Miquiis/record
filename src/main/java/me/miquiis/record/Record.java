@@ -8,7 +8,9 @@ import me.miquiis.record.common.models.RecordTape;
 import me.miquiis.record.common.models.RecordTick;
 import me.miquiis.record.common.models.RecordTickEvent;
 import me.miquiis.record.common.utils.JsonDeserializerWithInheritance;
+import me.miquiis.record.server.managers.CommandManager;
 import me.miquiis.record.server.network.RecordNetwork;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -33,6 +35,8 @@ public class Record
 
     // COMMON SIDE
 
+    private CommandManager commandManager;
+
     private FileManager pathfindingFolder;
     private RecordManager recordManager;
 
@@ -41,7 +45,11 @@ public class Record
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::enqueueIMC);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+
+        this.commandManager = new CommandManager();
+
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(commandManager);
     }
 
     private void setup(final FMLCommonSetupEvent event)

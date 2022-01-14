@@ -4,7 +4,7 @@ import me.miquiis.record.Record;
 import me.miquiis.record.common.events.custom.RecordTapeEndEvent;
 import me.miquiis.record.common.managers.RecordManager;
 import me.miquiis.record.common.models.*;
-import me.miquiis.record.server.commands.RecordCommand;
+import me.miquiis.record.server.commands.OldRecordCommand;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
 import net.minecraftforge.client.event.ClientChatEvent;
@@ -27,7 +27,7 @@ public class ForgeEvents {
     @SubscribeEvent
     public static void onCommandsRegister(RegisterCommandsEvent event)
     {
-        new RecordCommand(event.getDispatcher());
+        new OldRecordCommand(event.getDispatcher());
 
         ConfigCommand.register(event.getDispatcher());
     }

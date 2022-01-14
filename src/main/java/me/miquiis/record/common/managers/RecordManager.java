@@ -6,6 +6,9 @@ import de.budschie.bmorph.main.BMorphMod;
 import de.budschie.bmorph.morph.MorphManagerHandlers;
 import de.budschie.bmorph.morph.MorphUtil;
 import me.miquiis.record.Record;
+import me.miquiis.record.common.events.ForgeEvents;
+import me.miquiis.record.common.events.custom.RecordTapeEndEvent;
+import me.miquiis.record.common.events.custom.RecordTapeStartEvent;
 import me.miquiis.record.common.models.*;
 import me.miquiis.record.common.utils.MessageUtils;
 import net.minecraft.entity.Entity;
@@ -18,6 +21,7 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
@@ -53,7 +57,7 @@ public class RecordManager {
         if (isRecording(player.getUniqueID())) return;
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("id", entity.toString());
-        //MorphUtil.morphToServer(Optional.of(MorphManagerHandlers.FALLBACK.createMorph(ForgeRegistries.ENTITIES.getValue(entity), nbt, null, true)), Optional.empty(), player);
+        MorphUtil.morphToServer(Optional.of(MorphManagerHandlers.FALLBACK.createMorph(ForgeRegistries.ENTITIES.getValue(entity), nbt, null, true)), Optional.empty(), player);
         recording.put(player.getUniqueID(), new RecordingTake(tape, take, entity.toString()));
     }
 
@@ -117,7 +121,7 @@ public class RecordManager {
 
         mod.getPathfindingFolder().saveObject(recordTape.tapeName, recordTape);
 
-        //MorphUtil.morphToServer(Optional.empty(), Optional.empty(), recorder);
+        MorphUtil.morphToServer(Optional.empty(), Optional.empty(), recorder);
     }
 
     public void stopPlaying(String tape)
@@ -203,6 +207,8 @@ public class RecordManager {
                 playTakes.add(new PlayTake(recordTake, shouldKill, spawnedEntity));
             });
         });
+
+        MinecraftForge.EVENT_BUS.post(new RecordTapeStartEvent(tapeName, playTakes.stream().map(playTake -> playTake.takeName).collect(Collectors.toList())));
 
         currentPlaying.put(recordTape.tapeName, playTakes);
 
