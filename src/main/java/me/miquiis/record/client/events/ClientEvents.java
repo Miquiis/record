@@ -21,7 +21,7 @@ public class ClientEvents {
         final KeyBinding[] keyBindings = ClientKeybinds.keyBindings;
         if (keyBindings[0].isKeyDown()) {
             RecordNetwork.CHANNEL.sendToServer(new StopRecordMessage());
-        } else if (keyBindings[1].isKeyDown()) {
+        } else if (keyBindings[1].isPressed()) {
             RecordNetwork.CHANNEL.sendToServer(new PauseMessage());
         }
     }

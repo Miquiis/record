@@ -64,6 +64,7 @@ public class RecordManager {
 
     public void pauseRecording(ServerPlayerEntity player)
     {
+        pausePlaying(player);
         if (!isRecording(player.getUniqueID())) return;
         RecordingTake recordingTake = getRecordingTake(player.getUniqueID());
         if(recordingTake.togglePause())
@@ -86,7 +87,7 @@ public class RecordManager {
             playTakes.forEach(playTake -> {
                 if (!atomicBoolean.get())
                 {
-                    if (isSendingFeedback())
+                    if (isSendingFeedback() && !atomicBoolean.get())
                         MessageUtils.sendMessage(player, playTake.togglePause() ? "&cPlaying paused." : "&aPlaying Resumed");
                     atomicBoolean.set(true);
                 }
@@ -96,15 +97,7 @@ public class RecordManager {
 
     public void handlePause(ServerPlayerEntity player)
     {
-        if (isRecording(player.getUniqueID()))
-        {
-            pauseRecording(player);
-            return;
-        }
-        else
-        {
-            pausePlaying(player);
-        }
+        pauseRecording(player);
     }
 
     public void stopRecording(ServerPlayerEntity recorder)

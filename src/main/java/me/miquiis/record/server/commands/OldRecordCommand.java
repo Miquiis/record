@@ -34,7 +34,7 @@ public class OldRecordCommand {
 
             recordManager.startRecording(context.getSource().asPlayer(), tape, take, entity);
             return 1;
-        }).then(Commands.argument("playback", StringArgumentType.string()).executes(context -> {
+        }).then(Commands.argument("whitelist", StringArgumentType.string()).executes(context -> {
             String tape = StringArgumentType.getString(context, "tape");
             String take = StringArgumentType.getString(context, "take");
             ResourceLocation entity = EntitySummonArgument.getEntityId(context, "entity");
@@ -45,7 +45,7 @@ public class OldRecordCommand {
                 MessageUtils.sendMessage(context.getSource().asPlayer(), "&eStarted recording take " + take + " for tape " + tape);
 
             recordManager.startRecording(context.getSource().asPlayer(), tape, take, entity);
-            return playBack(context, false);
+            return playBack(context, true);
         })))))).then(Commands.literal("stop").executes(context -> {
             final RecordManager recordManager = Record.getInstance().getRecordManager();
             recordManager.stopRecording(context.getSource().asPlayer());

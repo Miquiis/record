@@ -106,6 +106,8 @@ public class ForgeEvents {
         final PlayTake playTake = recordManager.getEntityTake(event.getEntity().getUniqueID());
         if (playTake == null) return;
 
+        if (playTake.isPaused) return;
+
         final RecordTick tick = playTake.takeScript.playTick();
 
         if (tick == null)
