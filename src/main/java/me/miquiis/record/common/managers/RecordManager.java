@@ -175,16 +175,18 @@ public class RecordManager {
         final RecordManager recordManager = Record.getInstance().getRecordManager();
         final RecordTape recordTape = recordManager.getRecordTape(tapeName);
 
-        if (recordTape == null && isSendingFeedback())
+        if (recordTape == null)
         {
+            if (isSendingFeedback())
             MessageUtils.sendMessage(player, "&cThe recording named " + tapeName + " was not found.");
             return -1;
         }
 
         List<RecordTake> recordTakes = recordTape.takes.stream().filter(recordTake -> whitelist.isEmpty() || whitelist.contains(recordTake.takeName)).collect(Collectors.toList());
 
-        if (recordTakes.isEmpty()&& isSendingFeedback())
+        if (recordTakes.isEmpty())
         {
+            if (isSendingFeedback())
             MessageUtils.sendMessage(player, "&cThe recording tape named " + tapeName + " has no animations.");
             return -1;
         }
@@ -210,7 +212,16 @@ public class RecordManager {
 
         MinecraftForge.EVENT_BUS.post(new RecordTapeStartEvent(tapeName, playTakes.stream().map(playTake -> playTake.takeName).collect(Collectors.toList())));
 
-        currentPlaying.put(recordTape.tapeName, playTakes);
+        if (currentPlaying.containsKey(recordTape.tapeName))
+        {
+            List<PlayTake> currentPlayTakes = currentPlaying.get(recordTape.tapeName);
+            currentPlayTakes.addAll(playTakes);
+            currentPlaying.put(recordTape.tapeName, currentPlayTakes);
+        }
+        else
+        {
+            currentPlaying.put(recordTape.tapeName, playTakes);
+        }
 
         if (isSendingFeedback())
             MessageUtils.sendMessage(player, "&aAnimation is starting now.");
