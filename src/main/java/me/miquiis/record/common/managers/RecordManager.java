@@ -23,6 +23,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.logging.log4j.core.jmx.Server;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -128,6 +129,44 @@ public class RecordManager {
     {
         if (!isPlaying(tape)) return;
         currentPlaying.remove(tape);
+    }
+
+    public int deleteTape(ServerPlayerEntity player, String tapeName)
+    {
+        final RecordTape recordTape = getRecordTape(tapeName);
+
+        if (recordTape == null)
+        {
+            if (isSendingFeedback())
+                MessageUtils.sendMessage(player, "&cThe recording named " + tapeName + " was not found.");
+            return -1;
+        }
+
+        if (isSendingFeedback())
+            MessageUtils.sendMessage(player, "&aThe tape named " + tapeName + " was deleted.");
+
+        cachedTapes.remove(recordTape);
+        mod.getPathfindingFolder().deleteObject(recordTape.tapeName, false);
+        return 1;
+    }
+
+    public int deleteTake(ServerPlayerEntity player, String tapeName, String takeName)
+    {
+        final RecordTape recordTape = getRecordTape(tapeName);
+
+        if (recordTape == null)
+        {
+            if (isSendingFeedback())
+                MessageUtils.sendMessage(player, "&cThe recording named " + tapeName + " was not found.");
+            return -1;
+        }
+
+        if (isSendingFeedback())
+            MessageUtils.sendMessage(player, "&aThe take named " + takeName + " was deleted.");
+
+        recordTape.takes.removeIf(playTake -> playTake.takeName.equalsIgnoreCase(takeName));
+        mod.getPathfindingFolder().saveObject(recordTape.tapeName, recordTape);
+        return 1;
     }
 
     public boolean stopPlaying(String tape, String take)

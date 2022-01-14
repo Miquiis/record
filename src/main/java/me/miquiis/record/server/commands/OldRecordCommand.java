@@ -60,6 +60,13 @@ public class OldRecordCommand {
             recordManager.pauseRecording(context.getSource().asPlayer());
             return 1;
         }))
+        .then(Commands.literal("delete").then(Commands.argument("tape", StringArgumentType.string()).suggests(CustomSuggestionProviders.AVAILABLE_TAPES).executes(context -> {
+            final RecordManager recordManager = Record.getInstance().getRecordManager();
+            return recordManager.deleteTape(context.getSource().asPlayer(), StringArgumentType.getString(context, "tape"));
+        }).then(Commands.argument("take", StringArgumentType.string()).suggests(CustomSuggestionProviders.AVAILABLE_TAKES).executes(context -> {
+            final RecordManager recordManager = Record.getInstance().getRecordManager();
+            return recordManager.deleteTake(context.getSource().asPlayer(), StringArgumentType.getString(context, "tape"), StringArgumentType.getString(context, "take"));
+        }))))
         .then(Commands.literal("addEvent").then(Commands.argument("label", StringArgumentType.string()).executes(context -> createCustomEvent(context, false))
                 .then(Commands.argument("value", StringArgumentType.string()).executes(context -> createCustomEvent(context, true))))
         )

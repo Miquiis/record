@@ -26,8 +26,7 @@ public class FileManager {
         public Class<?> klass;
         public JsonDeserializerWithInheritance<?> deserializer;
 
-        public<T> JsonDeserializer(Class<T> klass, JsonDeserializerWithInheritance<T> deserializer)
-        {
+        public <T> JsonDeserializer(Class<T> klass, JsonDeserializerWithInheritance<T> deserializer) {
             this.klass = klass;
             this.deserializer = deserializer;
         }
@@ -41,8 +40,7 @@ public class FileManager {
     private File mainFolder;
     private boolean isFirstTime;
 
-    public FileManager(String filePath)
-    {
+    public FileManager(String filePath) {
         this.minecraftFolder = Minecraft.getInstance().gameDir;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.deserializer = new GsonBuilder().setPrettyPrinting().create();
@@ -50,14 +48,12 @@ public class FileManager {
         this.isFirstTime = createFolder();
     }
 
-    public FileManager(String filePath, File directory, JsonDeserializer... jsonDeserializers)
-    {
+    public FileManager(String filePath, File directory, JsonDeserializer... jsonDeserializers) {
         this.minecraftFolder = directory;
 
         GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
 
-        for (JsonDeserializer jsonDeserializer : jsonDeserializers)
-        {
+        for (JsonDeserializer jsonDeserializer : jsonDeserializers) {
             gsonBuilder.registerTypeAdapter(jsonDeserializer.klass, jsonDeserializer.deserializer);
         }
 
@@ -67,13 +63,18 @@ public class FileManager {
         this.isFirstTime = createFolder();
     }
 
-    private boolean createFolder()
-    {
+    private boolean createFolder() {
         if (!mainFolder.exists()) {
             return mainFolder.mkdir();
         }
 
         return false;
+    }
+
+    public boolean deleteObject(String fileName, boolean hasExtension)
+    {
+        final File objectFile = new File(mainFolder, fileName + (!hasExtension ? ".json" : ""));
+        return objectFile.delete();
     }
 
     public boolean saveObject(String fileName, Object object)
