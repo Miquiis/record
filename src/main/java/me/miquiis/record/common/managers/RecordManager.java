@@ -210,7 +210,7 @@ public class RecordManager {
             });
         });
 
-        MinecraftForge.EVENT_BUS.post(new RecordTapeStartEvent(tapeName, playTakes.stream().map(playTake -> playTake.takeName).collect(Collectors.toList())));
+        MinecraftForge.EVENT_BUS.post(new RecordTapeStartEvent(player.getServerWorld(), tapeName, playTakes.stream().map(playTake -> playTake.takeName).collect(Collectors.toList())));
 
         if (currentPlaying.containsKey(recordTape.tapeName))
         {
