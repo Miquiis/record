@@ -85,10 +85,11 @@ public class RecordManager {
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
         currentPlaying.forEach((s, playTakes) -> {
             playTakes.forEach(playTake -> {
+                boolean toggle = playTake.togglePause();
                 if (!atomicBoolean.get())
                 {
                     if (isSendingFeedback() && !atomicBoolean.get())
-                        MessageUtils.sendMessage(player, playTake.togglePause() ? "&cPlaying paused." : "&aPlaying Resumed");
+                        MessageUtils.sendMessage(player, toggle ? "&cPlaying paused." : "&aPlaying Resumed");
                     atomicBoolean.set(true);
                 }
             });
