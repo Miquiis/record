@@ -21,6 +21,8 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.core.jmx.Server;
@@ -262,6 +264,60 @@ public class RecordManager {
 
         return 1;
     }
+
+    public void startPlaying(ServerWorld world, String tapeName, boolean shouldKill, @Nonnull List<String> whitelist)
+    {
+        final RecordManager recordManager = Record.getInstance().getRecordManager();
+        final RecordTape recordTape = recordManager.getRecordTape(tapeName);
+
+        if (recordTape == null)
+        {
+            return;
+        }
+
+        List<RecordTake> recordTakes = recordTape.takes.stream().filter(recordTake -> whitelist.isEmpty() || whitelist.contains(recordTake.takeName)).collect(Collectors.toList());
+
+        if (recordTakes.isEmpty())
+        {
+            return;
+        }
+
+        List<PlayTake> playTakes = new ArrayList<>();
+
+        recordTakes.forEach(recordTake -> {
+            final Optional<EntityType<?>> optionalEntityType = EntityType.byKey(recordTake.takeEntity);
+            final RecordScript recordScript = recordTake.takeScript;
+            optionalEntityType.ifPresent(entityType -> {
+                Entity spawnedEntity = entityType.spawn(world, null, null, new BlockPos(recordScript.getFirstTick().posx, recordScript.getFirstTick().posy, recordScript.getFirstTick().posz), SpawnReason.COMMAND, false,  false);
+                CompoundNBT nbt = spawnedEntity.serializeNBT();
+                try {
+                    nbt.putBoolean("PersistenceRequired", true);
+                    nbt.merge(JsonToNBT.getTagFromJson("{Tags:[\"record\",\"recording\"]}"));
+                } catch (CommandSyntaxException e) {
+                    e.printStackTrace();
+                }
+
+                spawnedEntity.deserializeNBT(nbt);
+                playTakes.add(new PlayTake(recordTake, shouldKill, spawnedEntity));
+            });
+        });
+
+        MinecraftForge.EVENT_BUS.post(new RecordTapeStartEvent(world, tapeName, playTakes));
+
+        if (currentPlaying.containsKey(recordTape.tapeName))
+        {
+            List<PlayTake> currentPlayTakes = currentPlaying.get(recordTape.tapeName);
+            currentPlayTakes.addAll(playTakes);
+            currentPlaying.put(recordTape.tapeName, currentPlayTakes);
+        }
+        else
+        {
+            currentPlaying.put(recordTape.tapeName, playTakes);
+        }
+
+        return;
+    }
+
 
     public RecordingTake getRecordingTake(UUID uuid)
     {
